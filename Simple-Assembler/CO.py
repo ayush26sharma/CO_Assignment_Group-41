@@ -168,9 +168,24 @@ def main():
     labels = {}
     variables = {}
     output = []
+    labels_check = ["add", "sub","mov", "ld", "st",
+                         "mul", "div", "rs", "ls", "xor", "or",
+                         "and", "not", "cmp", "jmp", "jlt", "jgt",
+                         "je", "hlt"]
     reg_list = ["R0", "R1", "R2", "R3", "R4", "R5", "R6"]
     reg_list_fl = ["R0", "R1", "R2", "R3", "R4", "R5", "R6", "FLAGS"]
     l = list(map(str, sys.stdin.readlines()))
+
+    
+    '''var x
+    mov R1 $4
+    mov R2 $4
+    cmp R1 R2
+    mov R3 FLAGS
+    mov R4 $1
+    cmp R3 R4
+    jgt label
+    label: hlt'''
     # l = f
     for i in range(len(l)):
         if i >= len(l):
@@ -180,11 +195,12 @@ def main():
         if j1 == "":
             l.remove(l[i])
             i -= 1
+
     j = 0
     str1 = l[-1]
     str1 = str1.strip()
     str1 = str1.strip("/n")
-    if str1 != "hlt":
+    if "hlt" not in str1:
         print("ERROR: Last instruction should be 'hlt'")
         return
     for j in range(len(l)):
@@ -236,7 +252,10 @@ def main():
         elif a1.find(":") != -1:
             print("ERROR: The name of a label should always be alphanumeric with no spaces, ERROR on line: "+str(temp+x+1))
             return
-
+    for x in labels:
+        if x in labels_check:
+            print("ERROR: Name of a label can't be same as an instruction name.")
+            return
     for x in range(len(l[j:])):
         # print(i)
         i = l[j+x]
