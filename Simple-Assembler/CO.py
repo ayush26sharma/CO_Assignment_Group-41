@@ -164,24 +164,29 @@ def halt_func():
     return binary_code
 
 
-if __name__ == '__main__':
+def main():
     labels = {}
     variables = {}
-    flags = {}
+    output = []
     reg_list = ["R0", "R1", "R2", "R3", "R4", "R5", "R6"]
     reg_list_fl = ["R0", "R1", "R2", "R3", "R4", "R5", "R6", "FLAGS"]
-    f = list(map(str, sys.stdin.readlines()))
-    '''var x
-    mov R1 $4
-    mov R2 $4
-    cmp R1 R2
-    mov R3 FLAGS
-    mov R4 $1
-    cmp R3 R4
-    jgt label
-    label: hlt'''
-    l = f
+    l = list(map(str, sys.stdin.readlines()))
+    # l = f
+    for i in range(len(l)):
+        if i >= len(l):
+            break
+        j1 = l[i].strip()
+        j1 = j1.strip("/n")
+        if j1 == "":
+            l.remove(l[i])
+            i -= 1
     j = 0
+    str1 = l[-1]
+    str1 = str1.strip()
+    str1 = str1.strip("/n")
+    if str1 != "hlt":
+        print("ERROR: Last instruction should be 'hlt'")
+        return
     for j in range(len(l)):
         j1 = l[j].strip()
 
@@ -190,19 +195,25 @@ if __name__ == '__main__':
         list1 = j1.split()
         if "var" in list1:
             if len(list1) != 2 and len(list1) != 3:
-                print("Error in statement.")
+                print("ERROR: Invalid variable instruction length on line: "+str(j+1))
+                return
             elif len(list1) == 3:
                 pass
             else:
                 if list1[0] != "var":
-                    print("Error in statement.")
-                elif not list1[1].isalnum():
-                    print("Error in statement.")
+                    print("ERROR: Syntax for defining a variable is not correct, ERROR on line: "+ str(j+1))
+                    return
+                elif not (list1[1].isalnum() or list1[1].find("_") != -1):
+                    print("ERROR: The name of a variable should contain only alphanumeric characters and underscore, ERROR on line: "+str(j+1) )
+                    return
                 else:
 
                     variables[list1[1]] = 0
+                    if len(l)==1:
+                        return
         else:
             break
+
     temp = j
     a1 = 0
     for x in variables.keys():
@@ -218,498 +229,601 @@ if __name__ == '__main__':
 
         list1 = a1.split()
         if list1[0][-1] == ":" and list1[0][:-1].isalnum():
+            if list1[0][:-1] in labels:
+                print('ERROR: "' + str(list1[0][:-1]) + '" label already defined, ERROR on line: '+str(temp+x+1))
+                return
             labels[list1[0][:-1]] = "0" * (8 - len(bin(x)[2:])) + bin(x)[2:]
-        elif list1[0][-1] == ":":
-            print("Error in statement.")
-    for i in l[j:]:
+        elif a1.find(":") != -1:
+            print("ERROR: The name of a label should always be alphanumeric with no spaces, ERROR on line: "+str(temp+x+1))
+            return
+
+    for x in range(len(l[j:])):
         # print(i)
+        i = l[j+x]
         i = i.strip()
         i = i.strip("/n")
 
         list1 = i.split()
+
         if "var" in list1:
-            print("Error in statement.")
+            print("ERROR: Variables must be defined in the beginning of the code, ERROR on line: "+str(j+x+1))
+            return
         elif "add" in list1:
 
             if len(list1) != 4 and len(list1) != 5:
 
-                print("Error in statement.")
-
+                print("ERROR:Invalid 'add' instruction on line: "+str(j+x+1))
+                return
             else:
                 if len(list1) == 5:
                     if list1[0][:-1] not in labels:
-                        print("Error in statement.")
+                        print("ERROR: Label is not defined, ERROR on line: " +str(j+x+1))
+                        return
                     else:
                         if list1[1] != "add":
 
-                            print("Error in statement.")
+                            print("ERROR: Syntax for add instruction is not correct, ERROR on line: "+str(j+x+1))
+                            return
                         elif (list1[2] not in reg_list) or (list1[3] not in reg_list) or (list1[4] not in reg_list):
 
-                            print("Error in statement.")
+                            print("ERROR: Invalid register used, ERROR on line:" +str(j+x+1))
+                            return
                         else:
-                            print(add_func(list1[1:]))
+                            output.append(add_func(list1[1:]))
                 else:
                     if list1[0] != "add":
-
-                        print("Error in statement.")
+                        print("ERROR: Syntax for add instruction is not correct, ERROR on line: " + str(j + x + 1))
+                        return
                     elif (list1[1] not in reg_list) or (list1[2] not in reg_list) or (list1[3] not in reg_list):
-
-                        print("Error in statement.")
+                        print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
+                        return
                     else:
-                        print(add_func(list1))
+                        output.append(add_func(list1))
 
         elif "sub" in list1:
 
             if len(list1) != 4 and len(list1) != 5:
 
-                print("Error in statement.")
+                print("ERROR:Invalid 'sub' instruction on line: " + str(j + x + 1))
+                return
 
             else:
                 if len(list1) == 5:
                     if list1[0][:-1] not in labels:
-                        print("Error in statement.")
+                        print("ERROR: Label is not defined, ERROR on line: " + str(j + x + 1))
+                        return
                     else:
                         if list1[1] != "sub":
 
-                            print("Error in statement.")
+                            print("ERROR: Syntax for sub instruction is not correct, ERROR on line: "+str(j+x+1))
+                            return
                         elif (list1[2] not in reg_list) or (list1[3] not in reg_list) or (list1[4] not in reg_list):
 
-                            print("Error in statement.")
+                            print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
+                            return
                         else:
-                            print(sub_func(list1[1:]))
+                            output.append(sub_func(list1[1:]))
                 else:
                     if list1[0] != "sub":
-
-                        print("Error in statement.")
+                        print("ERROR: Syntax for sub instruction is not correct, ERROR on line: "+str(j+x+1))
+                        return
                     elif (list1[1] not in reg_list) or (list1[2] not in reg_list) or (list1[3] not in reg_list):
-                        print("Error in statement.")
+                        print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
+                        return
                     else:
-                        print(sub_func(list1))
+                        output.append(sub_func(list1))
+
         elif "mov" in list1:
             if len(list1) != 3 and len(list1) != 4:
-                print("Error in statement.")
+                print("ERROR:Invalid 'mov' instruction on line: " + str(j + x + 1))
+                return
             else:
                 if len(list1) == 4:
                     if list1[0][:-1] not in labels:
-                        print("Error in statement.")
+                        print("ERROR: Label is not defined, ERROR on line: " + str(j + x + 1))
+                        return
                     else:
                         if list1[1] != "mov":
-                            print("Error in statement.")
+                            print("ERROR: Syntax for mov instruction is not correct, ERROR on line: " + str(j + x + 1))
+                            return
                         else:
                             if list1[2] not in reg_list:
-                                print("Error in statement.")
+                                print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
+                                return
                             else:
                                 if list1[3] in reg_list_fl:
-                                    print(mov_reg_func(list1[1:]))
+                                    output.append(mov_reg_func(list1[1:]))
                                 else:
                                     if list1[3][0] != "$":
-                                        print("Error in statement.")
+                                        print("ERROR: Immediate value is not defined properly, ERROR on line: " + str(j + x + 1))
+                                        return
                                     elif list1[2][1:].isnumeric() and 255 >= int(list1[2][1:]) >= 0:
-                                        print(mov_imm_func(list1[1:]))
+                                        output.append(mov_imm_func(list1[1:]))
                                     else:
-                                        print("Error in statement.")
+                                        print("ERROR: Immediate value should be a number between 0 and 255 (both including), ERROR on line: " +str(j + x + 1))
+                                        return
                 else:
                     if list1[0] != "mov":
-                        print("Error in statement.")
+                        print("ERROR: Syntax for mov instruction is not correct, ERROR on line: " + str(j + x + 1))
+                        return
                     else:
                         if list1[1] not in reg_list:
-                            print("Error in statement.")
+                            print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
+                            return
                         else:
                             if list1[2] in reg_list_fl:
-                                print(mov_reg_func(list1))
+                                output.append(mov_reg_func(list1))
                             else:
                                 if list1[2][0] != "$":
-                                    print("Error in statement.")
+                                    print("ERROR: Immediate value is not defined properly, ERROR on line: "+str(j+x+1))
+                                    return
                                 elif list1[2][1:].isnumeric() and 255 >= int(list1[2][1:]) >= 0:
-                                    print(mov_imm_func(list1))
+                                    output.append(mov_imm_func(list1))
 
                                 else:
-                                    print("Error in statement.")
+                                    print("ERROR: Immediate value should be a number between 0 and 255 (both including), ERROR on line: " + str(j + x + 1))
+                                    return
         elif "ld" in list1:
             if len(list1) != 3 and len(list1) != 4:
-                print("Error in statement.")
+                print("ERROR:Invalid 'ld' instruction on line: " + str(j + x + 1))
+                return
             else:
                 if len(list1) == 4:
                     if list1[0][:-1] not in labels:
-                        print("Error in statement.")
+                        print("ERROR: Label is not defined, ERROR on line: " + str(j + x + 1))
+                        return
                     else:
                         if list1[1] != "ld":
-                            print("Error in statement.")
+                            print("ERROR: Syntax for ld instruction is not correct, ERROR on line: " + str(j + x + 1))
+                            return
                         else:
                             if list1[2] not in reg_list:
-                                print("Error in statement.")
+                                print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
+                                return
                             else:
                                 if list1[3] not in variables:
-                                    print("Error in statement.")
+                                    print("ERROR: Invalid variable used, ERROR on line:" + str(j + x + 1))
+                                    return
                                 else:
-                                    print(load_func(list1[1:], variables))
+                                    output.append(load_func(list1[1:], variables))
                 else:
                     if list1[0] != "ld":
-                        print("Error in statement.")
+                        print("ERROR: Syntax for ld instruction is not correct, ERROR on line: " + str(j + x + 1))
+                        return
                     else:
                         if list1[1] not in reg_list:
-                            print("Error in statement.")
+                            print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
+                            return
                         else:
                             if list1[2] not in variables:
-                                print("Error in statement.")
+                                print("ERROR: Invalid variable used, ERROR on line:" + str(j + x + 1))
+                                return
                             else:
-                                print(load_func(list1, variables))
+                                output.append(load_func(list1, variables))
 
         elif "st" in list1:
             if len(list1) != 3 and len(list1) != 4:
-                print("Error in statement.")
+                print("ERROR:Invalid 'st' instruction on line: " + str(j + x + 1))
+                return
             else:
                 if len(list1) == 4:
                     if list1[0] not in labels:
-                        print("Error in statement.")
+                        print("ERROR: Label is not defined, ERROR on line: " + str(j + x + 1))
+                        return
                     else:
                         if list1[1] != "st":
-                            print("Error in statement.")
+                            print("ERROR: Syntax for st instruction is not correct, ERROR on line: " + str(j + x + 1))
+                            return
                         else:
                             if list1[2] not in reg_list:
-                                print("Error in statement.")
+                                print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
+                                return
                             else:
                                 if list1[3] not in variables:
-                                    print("Error in statement.")
+                                    print("ERROR: Invalid variable used, ERROR on line:" + str(j + x + 1))
+                                    return
                                 else:
-                                    print(store_func(list1[1:], variables))
+                                    output.append(store_func(list1[1:], variables))
                 else:
                     if list1[0] != "st":
-                        print("Error in statement.")
+                        print("ERROR: Syntax for st instruction is not correct, ERROR on line: " + str(j + x + 1))
+                        return
                     else:
                         if list1[1] not in reg_list:
-                            print("Error in statement.")
+                            print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
+                            return
                         else:
                             if list1[2] not in variables:
-                                print("Error in statement.")
+                                print("ERROR: Invalid variable used, ERROR on line:" + str(j + x + 1))
+                                return
                             else:
 
-                                print(store_func(list1, variables))
+                                output.append(store_func(list1, variables))
         elif "mul" in list1:
             if len(list1) != 4 and len(list1) != 5:
-
-                print("Error in statement.")
-
+                print("ERROR:Invalid 'mul' instruction on line: " + str(j + x + 1))
+                return
             else:
                 if len(list1) == 5:
                     if list1[0][:-1] not in labels:
-                        print("Error in statement.")
+                        print("ERROR: Label is not defined, ERROR on line: " + str(j + x + 1))
+                        return
                     else:
                         if list1[1] != "mul":
-
-                            print("Error in statement.")
+                            print("ERROR: Syntax for mul instruction is not correct, ERROR on line: " + str(j + x + 1))
+                            return
                         elif (list1[2] not in reg_list) or (list1[3] not in reg_list) or (list1[4] not in reg_list):
 
-                            print("Error in statement.")
+                            print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
+                            return
                         else:
-                            print(mul_func(list1[1:]))
+                            output.append(mul_func(list1[1:]))
                 else:
                     if list1[0] != "mul":
 
-                        print("Error in statement.")
+                        print("ERROR: Syntax for mul instruction is not correct, ERROR on line: " + str(j + x + 1))
+                        return
                     elif (list1[1] not in reg_list) or (list1[2] not in reg_list) or (list1[3] not in reg_list):
 
-                        print("Error in statement.")
+                        print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
+                        return
                     else:
-                        print(mul_func(list1))
+                        output.append(mul_func(list1))
         elif "and" in list1:
 
             if len(list1) != 4 and len(list1) != 5:
 
-                print("Error in statement.")
+                print("ERROR:Invalid 'and' instruction on line: " + str(j + x + 1))
+                return
 
             else:
                 if len(list1) == 5:
                     if list1[0][:-1] not in labels:
-                        print("Error in statement.")
+                        print("ERROR: Label is not defined, ERROR on line: " + str(j + x + 1))
+                        return
                     else:
                         if list1[1] != "and":
 
-                            print("Error in statement.")
+                            print("ERROR: Syntax for add instruction is not correct, ERROR on line: " + str(j + x + 1))
+                            return
                         elif (list1[2] not in reg_list) or (list1[3] not in reg_list) or (list1[4] not in reg_list):
 
-                            print("Error in statement.")
+                            print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
+                            return
                         else:
-                            print(sub_func(list1[1:]))
+                            output.append(sub_func(list1[1:]))
                 else:
                     if list1[0] != "and":
 
-                        print("Error in statement.")
+                        print("ERROR: Syntax for add instruction is not correct, ERROR on line: " + str(j + x + 1))
+                        return
                     elif (list1[1] not in reg_list) or (list1[2] not in reg_list) or (list1[3] not in reg_list):
-                        print("Error in statement.")
+                        print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
+                        return
                     else:
-                        print(and_func(list1))
+                        output.append(and_func(list1))
         elif "or" in list1:
 
             if len(list1) != 4 and len(list1) != 5:
 
-                print("Error in statement.")
+                print("ERROR:Invalid 'or' instruction on line: " + str(j + x + 1))
+                return
 
             else:
                 if len(list1) == 5:
                     if list1[0][:-1] not in labels:
-                        print("Error in statement.")
+                        print("ERROR: Label is not defined, ERROR on line: " + str(j + x + 1))
+                        return
                     else:
                         if list1[1] != "or":
 
-                            print("Error in statement.")
+                            print("ERROR: Syntax for 'or' instruction is not correct, ERROR on line: " + str(j + x + 1))
+                            return
                         elif (list1[2] not in reg_list) or (list1[3] not in reg_list) or (list1[4] not in reg_list):
-
-                            print("Error in statement.")
+                            print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
+                            return
                         else:
-                            print(sub_func(list1[1:]))
+                            output.append(sub_func(list1[1:]))
                 else:
                     if list1[0] != "or":
 
-                        print("Error in statement.")
+                        print("ERROR: Syntax for 'or' instruction is not correct, ERROR on line: " + str(j + x + 1))
+                        return
                     elif (list1[1] not in reg_list) or (list1[2] not in reg_list) or (list1[3] not in reg_list):
-                        print("Error in statement.")
+                        print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
+                        return
                     else:
-                        print(or_func(list1))
+                        output.append(or_func(list1))
         elif "xor" in list1:
 
             if len(list1) != 4 and len(list1) != 5:
 
-                print("Error in statement.")
-
+                print("ERROR:Invalid 'xor' instruction on line: " + str(j + x + 1))
+                return
             else:
                 if len(list1) == 5:
                     if list1[0][:-1] not in labels:
-                        print("Error in statement.")
+                        print("ERROR: Label is not defined, ERROR on line: " + str(j + x + 1))
+                        return
                     else:
                         if list1[1] != "xor":
 
-                            print("Error in statement.")
+                            print("ERROR: Syntax for xor instruction is not correct, ERROR on line: " + str(j + x + 1))
+                            return
                         elif (list1[2] not in reg_list) or (list1[3] not in reg_list) or (list1[4] not in reg_list):
 
-                            print("Error in statement.")
+                            print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
+                            return
                         else:
-                            print(sub_func(list1[1:]))
+                            output.append(sub_func(list1[1:]))
                 else:
                     if list1[0] != "xor":
 
-                        print("Error in statement.")
+                        print("ERROR: Syntax for xor instruction is not correct, ERROR on line: " + str(j + x + 1))
+                        return
                     elif (list1[1] not in reg_list) or (list1[2] not in reg_list) or (list1[3] not in reg_list):
-                        print("Error in statement.")
+                        print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
+                        return
                     else:
-                        print(xor_func(list1))
+                        output.append(xor_func(list1))
 
         elif "div" in list1:
 
             if len(list1) != 3 and len(list1) != 4:
 
-                print("Error in statement.")
+                print("ERROR:Invalid 'div' instruction on line: " + str(j + x + 1))
+                return
 
             else:
                 if len(list1) == 4:
                     if list1[0][:-1] not in labels:
-                        print("Error in statement.")
+                        print("ERROR: Label is not defined, ERROR on line: " + str(j + x + 1))
+                        return
                     else:
                         if list1[1] != "div":
-
-                            print("Error in statement.")
+                            print("ERROR: Syntax for div instruction is not correct, ERROR on line: " + str(j + x + 1))
+                            return
                         elif (list1[2] not in reg_list) or (list1[3] not in reg_list):
 
-                            print("Error in statement.")
+                            print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
+                            return
                         else:
-                            print(div_func(list1[1:]))
+                            output.append(div_func(list1[1:]))
                 else:
                     if list1[0] != "div":
 
-                        print("Error in statement.")
+                        print("ERROR: Syntax for div instruction is not correct, ERROR on line: " + str(j + x + 1))
+                        return
                     elif (list1[1] not in reg_list) or (list1[2] not in reg_list):
-                        print("Error in statement.")
+                        print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
+                        return
                     else:
-                        print(div_func(list1))
+                        output.append(div_func(list1))
 
         elif "not" in list1:
 
             if len(list1) != 3 and len(list1) != 4:
 
-                print("Error in statement.")
+                print("ERROR:Invalid 'not' instruction on line: " + str(j + x + 1))
+                return
 
             else:
                 if len(list1) == 4:
                     if list1[0][:-1] not in labels:
-                        print("Error in statement.")
+                        print("ERROR: Label is not defined, ERROR on line: " + str(j + x + 1))
+                        return
                     else:
                         if list1[1] != "not":
 
-                            print("Error in statement.")
+                            print("ERROR: Syntax for 'not' instruction is not correct, ERROR on line: " + str(j + x + 1))
+                            return
                         elif (list1[2] not in reg_list) or (list1[3] not in reg_list):
 
-                            print("Error in statement.")
+                            print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
+                            return
                         else:
-                            print(invert_func(list1[1:]))
+                            output.append(invert_func(list1[1:]))
                 else:
                     if list1[0] != "not":
 
-                        print("Error in statement.")
+                        print("ERROR: Syntax for 'not' instruction is not correct, ERROR on line: " + str(j + x + 1))
+                        return
                     elif (list1[1] not in reg_list) or (list1[2] not in reg_list):
-                        print("Error in statement.")
+                        print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
+                        return
                     else:
-                        print(invert_func(list1))
+                        output.append(invert_func(list1))
 
         elif "cmp" in list1:
 
             if len(list1) != 3 and len(list1) != 4:
 
-                print("Error in statement.")
+                print("ERROR:Invalid 'cmp' instruction on line: " + str(j + x + 1))
+                return
 
             else:
                 if len(list1) == 4:
                     if list1[0][:-1] not in labels:
-                        print("Error in statement.")
+                        print("ERROR: Label is not defined, ERROR on line: " + str(j + x + 1))
+                        return
                     else:
                         if list1[1] != "cmp":
 
-                            print("Error in statement.")
+                            print("ERROR: Syntax for 'cmp' instruction is not correct, ERROR on line: " + str(j + x + 1))
+                            return
                         elif (list1[2] not in reg_list) or (list1[3] not in reg_list):
 
-                            print("Error in statement.")
+                            print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
+                            return
                         else:
-                            print(compare_func(list1[1:]))
+                            output.append(compare_func(list1[1:]))
                 else:
                     if list1[0] != "cmp":
 
-                        print("Error in statement.")
+                        print("ERROR: Syntax for 'cmp' instruction is not correct, ERROR on line: " + str(j + x + 1))
+                        return
                     elif (list1[1] not in reg_list) or (list1[2] not in reg_list):
-                        print("Error in statement.")
+                        print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
+                        return
                     else:
-                        print(compare_func(list1))
+                        output.append(compare_func(list1))
 
         elif "jmp" in list1:
 
             if len(list1) != 2 and len(list1) != 3:
 
-                print("Error in statement.")
-
+                print("ERROR:Invalid 'jmp' instruction on line: " + str(j + x + 1))
+                return
             else:
                 if len(list1) == 3:
                     if list1[0][:-1] not in labels:
-                        print("Error in statement.")
+                        print("ERROR: Label is not defined, ERROR on line: " + str(j + x + 1))
+                        return
                     else:
                         if list1[1] != "jmp":
 
-                            print("Error in statement.")
+                            print("ERROR: Syntax for 'jmp' instruction is not correct, ERROR on line: " + str(j + x + 1))
+                            return
                         elif (list1[2] not in labels) or (list1[0][:-1] == list1[2]):
 
-                            print("Error in statement.")
+                            print("ERROR: Invalid label used, ERROR on line:" + str(j + x + 1))
+                            return
                         else:
-                            print(unconditional_jump_func(list1[1:], labels))
+                            output.append(unconditional_jump_func(list1[1:], labels))
                 else:
                     if list1[0] != "jmp":
 
-                        print("Error in statement.")
+                        print("ERROR: Syntax for jmp instruction is not correct, ERROR on line: " + str(j + x + 1))
+                        return
                     elif list1[1] not in labels:
-                        print("Error in statement.")
+                        print("ERROR: Invalid label used, ERROR on line:" + str(j + x + 1))
+                        return
                     else:
-                        print(unconditional_jump_func(list1, labels))
+                        output.append(unconditional_jump_func(list1, labels))
 
         elif "jgt" in list1:
 
             if len(list1) != 2 and len(list1) != 3:
 
-                print("Error in statement.")
+                print("ERROR:Invalid 'jgt' instruction on line: " + str(j + x + 1))
+                return
 
             else:
                 if len(list1) == 3:
                     if list1[0][:-1] not in labels:
-                        print("Error in statement.")
+                        print("ERROR: Label is not defined, ERROR on line: " + str(j + x + 1))
+                        return
                     else:
                         if list1[1] != "jgt":
 
-                            print("Error in statement.")
+                            print("ERROR: Syntax for 'jgt' instruction is not correct, ERROR on line: " + str(j + x + 1))
+                            return
                         elif (list1[2] not in labels) or (list1[0][:-1] == list1[2]):
 
-                            print("Error in statement.")
+                            print("ERROR: Invalid label used, ERROR on line:" + str(j + x + 1))
+                            return
                         else:
-                            print(jump_if_greater_func(list1[1:], labels))
+                            output.append(jump_if_greater_func(list1[1:], labels))
                 else:
                     if list1[0] != "jgt":
 
-                        print("Error in statement.")
-                    elif (list1[1] not in labels):
-                        print("Error in statement.")
+                        print("ERROR: Syntax for 'jgt' instruction is not correct, ERROR on line: " + str(j + x + 1))
+                        return
+                    elif list1[1] not in labels:
+                        print("ERROR: Invalid label used, ERROR on line:" + str(j + x + 1))
+                        return
                     else:
-                        print(jump_if_greater_func(list1, labels))
+                        output.append(jump_if_greater_func(list1, labels))
 
         elif "jlt" in list1:
 
             if len(list1) != 2 and len(list1) != 3:
 
-                print("Error in statement.")
+                print("ERROR:Invalid 'jlt' instruction on line: " + str(j + x + 1))
+                return
 
             else:
                 if len(list1) == 3:
                     if list1[0][:-1] not in labels:
-                        print("Error in statement.")
+                        print("ERROR: Label is not defined, ERROR on line: " + str(j + x + 1))
+                        return
                     else:
                         if list1[1] != "jlt":
 
-                            print("Error in statement.")
+                            print("ERROR: Syntax for 'jlt' instruction is not correct, ERROR on line: " + str(j + x + 1))
+                            return
                         elif (list1[2] not in labels) or (list1[0][:-1] == list1[2]):
 
-                            print("Error in statement.")
+                            print("ERROR: Invalid label used, ERROR on line:" + str(j + x + 1))
+                            return
                         else:
-                            print(jump_if_less_func(list1[1:], labels))
+                            output.append(jump_if_less_func(list1[1:], labels))
                 else:
                     if list1[0] != "jlt":
 
-                        print("Error in statement.")
-                    elif (list1[1] not in labels):
-                        print("Error in statement.")
+                        print("ERROR: Syntax for 'jlt' instruction is not correct, ERROR on line: " + str(j + x + 1))
+                        return
+                    elif list1[1] not in labels:
+                        print("ERROR: Invalid label used, ERROR on line:" + str(j + x + 1))
+                        return
                     else:
-                        print(jump_if_less_func(list1, labels))
+                        output.append(jump_if_less_func(list1, labels))
 
         elif "je" in list1:
 
             if len(list1) != 2 and len(list1) != 3:
 
-                print("Error in statement.")
+                print("ERROR:Invalid 'je' instruction on line: " + str(j + x + 1))
+                return
 
             else:
                 if len(list1) == 3:
                     if list1[0][:-1] not in labels:
-                        print("Error in statement.")
+                        print("ERROR: Label is not defined, ERROR on line: " + str(j + x + 1))
+                        return
                     else:
                         if list1[1] != "je":
 
-                            print("Error in statement.")
+                            print("ERROR: Syntax for 'je' instruction is not correct, ERROR on line: " + str(j + x + 1))
+                            return
                         elif (list1[2] not in labels) or (list1[0][:-1] == list1[2]):
 
-                            print("Error in statement.")
+                            print("ERROR: Invalid label used, ERROR on line:" + str(j + x + 1))
+                            return
                         else:
-                            print(jump_if_equal_func(list1[1:], labels))
+                            output.append(jump_if_equal_func(list1[1:], labels))
                 else:
                     if list1[0] != "je":
 
-                        print("Error in statement.")
-                    elif (list1[1] not in labels):
-                        print("Error in statement.")
+                        print("ERROR: Syntax for 'je' instruction is not correct, ERROR on line: " + str(j + x + 1))
+                        return
+                    elif list1[1] not in labels:
+                        print("ERROR: Invalid label used, ERROR on line:" + str(j + x + 1))
+                        return
                     else:
-                        print(jump_if_equal_func(list1, lables))
+                        output.append(jump_if_equal_func(list1, lables))
 
-        # string = "mov R2 $100"
-        # l2 = string.split()
-        # print(mov_imm_func(l2))
-        # elif "div" in list1:
         elif "hlt" in list1:
-            print(halt_func())
+            if j+x!=len(l)-1:
+                print("ERROR: Halt should be in the end, ERROR on line: "+str(j+x+1))
+                return
+            output.append(halt_func())
+
+    for s in output:
+        print(s)
     # print(labels)
     # print(variables)
+    #
     # string = "mov R2 $100"
     # l2 = string.split()
     # print(mov_imm_func(l2))
 
-# 0000100000001010
-# 0000100000001010
-# 0000100000001010
-# 0000100000001010
-# 0000100000001010
-# 0000100000001010
-# 0000100000001010
-# 0000100000001010
-# 0000100000001010
-# 0000100000001010
+# 0001000100000100
+# 0001001000000100
+# 0111000000001010
+# 0001100000011111
+# 0001010000000001
+# 0111000000011100
+# 1000100000000111
 # 1001100000000000
+main()
