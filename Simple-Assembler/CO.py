@@ -510,7 +510,7 @@ def main():
                             print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
                             return
                         else:
-                            output.append(sub_func(list1[1:]))
+                            output.append(and_func(list1[1:]))
                 else:
                     if list1[0] != "and":
 
@@ -542,7 +542,7 @@ def main():
                             print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
                             return
                         else:
-                            output.append(sub_func(list1[1:]))
+                            output.append(or_func(list1[1:]))
                 else:
                     if list1[0] != "or":
 
@@ -574,7 +574,7 @@ def main():
                             print("ERROR: Invalid register used, ERROR on line:" + str(j + x + 1))
                             return
                         else:
-                            output.append(sub_func(list1[1:]))
+                            output.append(xor_func(list1[1:]))
                 else:
                     if list1[0] != "xor":
 
