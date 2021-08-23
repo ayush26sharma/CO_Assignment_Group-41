@@ -1,3 +1,6 @@
+import sys
+import os
+
 dictionary_opcode = {"add": "00000", "sub": "00001", "mov1": "00010", "mov2": "00011", "ld": "00100", "st": "00101",
                      "mul": "00110", "div": "00111", "rs": "01000", "ls": "01001", "xor": "01010", "or": "01011",
                      "and": "01100", "not": "01101", "cmp": "01110", "jmp": "01111", "jlt": "10000", "jgt": "10001",
@@ -8,7 +11,7 @@ def funcToPrint(dict_reg_l):
     str1 = ""
     for i in dict_reg_l:
         str1 += "0" *(16 - len(str(bin(dict_reg_l[i]))[2:])) + str(bin(dict_reg_l[i]))[2:] +" "
-    str1.strip()
+    # str1.strip()
     return str1
 
 def main():
@@ -51,7 +54,7 @@ def main():
             dict_flags["E"] = "0"
             pc = str(bin(i))[2:]
             conv2 = "0" * (8 - len(pc)) + pc
-            print(conv2, funcToPrint(regValues), "0" * 12 + dict_flags["V"]+"0"*3)
+            print(conv2, funcToPrint(regValues)+ "0" * 12 + dict_flags["V"]+"0"*3)
             i+=1
 
         elif l[i][:5]=="00001":
@@ -70,7 +73,7 @@ def main():
             dict_flags["E"] = "0"
             pc = str(bin(i))[2:]
             conv2 = "0" * (8 - len(pc)) + pc
-            print(conv2, funcToPrint(regValues), "0" * 12 + dict_flags["V"] + "0" * 3)
+            print(conv2, funcToPrint(regValues)+ "0" * 12 + dict_flags["V"] + "0" * 3)
             i += 1
 
         elif l[i][:5] == "00010":
@@ -81,7 +84,7 @@ def main():
             dict_flags["E"] = "0"
             pc = str(bin(i))[2:]
             conv2 = "0" * (8 - len(pc)) + pc
-            print(conv2, funcToPrint(regValues), "0" * 16)
+            print(conv2, funcToPrint(regValues)+ "0" * 16)
             i+=1
         elif l[i][:5] == "00011":
             if l[i][13:]=="111":
@@ -105,7 +108,7 @@ def main():
             dict_flags["E"] = "0"
             pc = str(bin(i))[2:]
             conv2 = "0" * (8 - len(pc)) + pc
-            print(conv2, funcToPrint(regValues), "0" * 16)
+            print(conv2, funcToPrint(regValues)+ "0" * 16)
             i += 1
         elif l[i][:5]=="00100":
             if l[i][8:] not in variables:
@@ -119,7 +122,7 @@ def main():
             dict_flags["E"] = "0"
             pc = str(bin(i))[2:]
             conv2 = "0" * (8 - len(pc)) + pc
-            print(conv2, funcToPrint(regValues), "0" * 16)
+            print(conv2, funcToPrint(regValues)+ "0" * 16)
             i += 1
         elif l[i][:5] =="00101":
             variables[l[i][8:]] = regValues[dict_reg[l[i][5:8]]]
@@ -129,7 +132,7 @@ def main():
             dict_flags["E"] = "0"
             pc = str(bin(i))[2:]
             conv2 = "0" * (8 - len(pc)) + pc
-            print(conv2, funcToPrint(regValues), "0" * 16)
+            print(conv2, funcToPrint(regValues)+ "0" * 16)
             i+=1
         elif l[i][:5] == "00110":
             sum1 = regValues[dict_reg[l[i][10:13]]] * regValues[dict_reg[l[i][13:]]]
@@ -147,7 +150,7 @@ def main():
             dict_flags["E"] = "0"
             pc = str(bin(i))[2:]
             conv2 = "0" * (8 - len(pc)) + pc
-            print(conv2, funcToPrint(regValues), "0" * 12 + dict_flags["V"] + "0" * 3)
+            print(conv2, funcToPrint(regValues)+ "0" * 12 + dict_flags["V"] + "0" * 3)
             i += 1
         elif l[i][:5] == "00111":
             quotient = regValues[dict_reg[l[i][10:13]]] // regValues[dict_reg[l[i][13:]]]
@@ -167,7 +170,7 @@ def main():
             regValues["R1"] = rem
             pc = str(bin(i))[2:]
             conv2 = "0" * (8 - len(pc)) + pc
-            print(conv2, funcToPrint(regValues), "0" * 12 + dict_flags["V"] + "0" * 3)
+            print(conv2, funcToPrint(regValues)+ "0" * 12 + dict_flags["V"] + "0" * 3)
             i+=1
         elif l[i][:5] == "01000":
             regValues[dict_reg[l[i][5:8]]] //= 2** int(l[i][8:],2)
@@ -177,11 +180,11 @@ def main():
             dict_flags["L"] = "0"
             dict_flags["G"] = "0"
             dict_flags["E"] = "0"
-            print(conv2, funcToPrint(regValues), "0" * 16)
+            print(conv2, funcToPrint(regValues)+ "0" * 16)
             i += 1
         elif l[i][:5] == "01001":
             temp = regValues[dict_reg[l[i][5:8]]]
-            temp *= 2 ** int(l[i][8:],2)
+            temp = 2 * int(l[i][8:],2)
             if temp > (2**16-1):
                 temp1 = bin(temp)[2:]
                 temp = int(temp1[len(temp1)-16:], 2)
@@ -192,7 +195,7 @@ def main():
             regValues[dict_reg[l[i][5:8]]] = temp
             pc = str(bin(i))[2:]
             conv2 = "0" * (8 - len(pc)) + pc
-            print(conv2, funcToPrint(regValues), "0" * 16)
+            print(conv2, funcToPrint(regValues)+ "0" * 16)
             i+=1
         elif l[i][:5] == "01010":
             regValues[dict_reg[l[i][7:10]]] = regValues[dict_reg[l[i][10:13]]] ^ regValues[dict_reg[l[i][13:]]]
@@ -202,7 +205,7 @@ def main():
             dict_flags["E"] = "0"
             pc = str(bin(i))[2:]
             conv2 = "0" * (8 - len(pc)) + pc
-            print(conv2, funcToPrint(regValues), "0" * 16)
+            print(conv2, funcToPrint(regValues)+ "0" * 16)
             i += 1
         elif l[i][:5] == "01100":
             regValues[dict_reg[l[i][7:10]]] = regValues[dict_reg[l[i][10:13]]] & regValues[dict_reg[l[i][13:]]]
@@ -212,7 +215,7 @@ def main():
             dict_flags["E"] = "0"
             pc = str(bin(i))[2:]
             conv2 = "0" * (8 - len(pc)) + pc
-            print(conv2, funcToPrint(regValues), "0" * 16)
+            print(conv2, funcToPrint(regValues)+ "0" * 16)
             i += 1
         elif l[i][:5] == "01100":
             regValues[dict_reg[l[i][7:10]]] = regValues[dict_reg[l[i][10:13]]] | regValues[dict_reg[l[i][13:]]]
@@ -222,7 +225,7 @@ def main():
             dict_flags["E"] = "0"
             pc = str(bin(i))[2:]
             conv2 = "0" * (8 - len(pc)) + pc
-            print(conv2, funcToPrint(regValues), "0" * 16)
+            print(conv2, funcToPrint(regValues)+ "0" * 16)
             i += 1
         elif l[i][:5] == "01101":
             regValues[dict_reg[l[i][10:13]]] = ~ regValues[dict_reg[l[i][13:]]]
@@ -232,7 +235,7 @@ def main():
             dict_flags["E"] = "0"
             pc = str(bin(i))[2:]
             conv2 = "0" * (8 - len(pc)) + pc
-            print(conv2, funcToPrint(regValues), "0" * 16)
+            print(conv2, funcToPrint(regValues)+ "0" * 16)
             i += 1
         elif l[i][:5] == "01110":
             x = regValues[dict_reg[l[i][10:13]]]
@@ -246,18 +249,20 @@ def main():
                 dict_flags["E"] = "1"
             pc = str(bin(i))[2:]
             conv2 = "0" * (8 - len(pc)) + pc
-            print(conv2, funcToPrint(regValues), "0" * 13 + dict_flags["L"]+dict_flags["G"]+dict_flags["E"])
+            print(conv2, funcToPrint(regValues)+ "0" * 13 + dict_flags["L"]+dict_flags["G"]+dict_flags["E"])
             i += 1
         elif l[i][:5] == "01111":
+            pc = str(bin(i))[2:]
             i = int(l[i][8:],2)
             dict_flags["V"] = "0"
             dict_flags["L"] = "0"
             dict_flags["G"] = "0"
             dict_flags["E"] = "0"
-            pc = str(bin(i))[2:]
+
             conv2 = "0" * (8 - len(pc)) + pc
-            print(conv2, funcToPrint(regValues), "0" * 16)
+            print(conv2, funcToPrint(regValues)+ "0" * 16)
         elif l[i][:5] == "10000":
+            pc = str(bin(i))[2:]
             if dict_flags["L"]==1:
                 i = int(l[i][8:],2)
             else:
@@ -266,10 +271,11 @@ def main():
             dict_flags["L"] = "0"
             dict_flags["G"] = "0"
             dict_flags["E"] = "0"
-            pc = str(bin(i))[2:]
+
             conv2 = "0" * (8 - len(pc)) + pc
-            print(conv2, funcToPrint(regValues), "0" * 16)
+            print(conv2, funcToPrint(regValues)+ "0" * 16)
         elif l[i][:5] == "10001":
+            pc = str(bin(i))[2:]
             if dict_flags["G"]==1:
                 i = int(l[i][8:],2)
             else:
@@ -278,10 +284,11 @@ def main():
             dict_flags["L"] = "0"
             dict_flags["G"] = "0"
             dict_flags["E"] = "0"
-            pc = str(bin(i))[2:]
+
             conv2 = "0" * (8 - len(pc)) + pc
-            print(conv2, funcToPrint(regValues), "0" * 16)
+            print(conv2, funcToPrint(regValues)+ "0" * 16)
         elif l[i][:5] == "10010":
+            pc = str(bin(i))[2:]
             if dict_flags["E"]==1:
                 i = int(l[i][8:],2)
             else:
@@ -290,14 +297,14 @@ def main():
             dict_flags["L"] = "0"
             dict_flags["G"] = "0"
             dict_flags["E"] = "0"
-            pc = str(bin(i))[2:]
+
             conv2 = "0" * (8 - len(pc)) + pc
-            print(conv2, funcToPrint(regValues), "0" * 16)
+            print(conv2, funcToPrint(regValues)+ "0" * 16)
 
         elif l[i][:5] == "10011":
             pc = str(bin(i))[2:]
             conv2 = "0" * (8 - len(pc)) + pc
-            print(conv2, funcToPrint(regValues), "0" * 16)
+            print(conv2, funcToPrint(regValues)+ "0" * 16)
             i+=1
     totalNum = 256 - (len(l) + len(variables))
     for s in l:
@@ -305,7 +312,9 @@ def main():
         s = s.strip("/n")
         print(s)
     for s in variables:
-        print(variables[s])
+        converted = bin(variables[s])[2:]
+        conv2 = "0" * (16 - len(converted)) + converted
+        print(conv2)
     for s in range(totalNum):
         print("0"*16)
 main()
