@@ -1,5 +1,4 @@
 #!/bin/bash
 
 # Add command to run your program here
-echo "Hello World"
 python CO_Sim.py
