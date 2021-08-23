@@ -1,4 +1,4 @@
 #!/bin/bash
 
 # Add command to run your program here
-python CO_Sim.py
+python3 CO_Sim.py
