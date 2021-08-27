@@ -168,7 +168,7 @@ def main():
     labels = {}
     variables = {}
     output = []
-    labels_check = ["add", "sub", "mov", "ld", "st",
+    labels_check = ["var","add", "sub", "mov", "ld", "st",
                     "mul", "div", "rs", "ls", "xor", "or",
                     "and", "not", "cmp", "jmp", "jlt", "jgt",
                     "je", "hlt"]
@@ -201,7 +201,7 @@ def main():
     str1 = str1.strip()
     str1 = str1.strip("/n")
     if "hlt" not in str1:
-        print("ERROR: Last instruction should be 'hlt'")
+        print("ERROR: Last instruction should be 'hlt', ERROR on line: "+ str(len(l)))
         return
     for j in range(len(l)):
         j1 = l[j].strip()
@@ -220,12 +220,16 @@ def main():
                     print("ERROR: Syntax for defining a variable is not correct, ERROR on line: " + str(j + 1))
                     return
                 elif not (list1[1].isalnum() or list1[1].find("_") != -1):
+
                     print(
                         "ERROR: The name of a variable should contain only alphanumeric characters and underscore, ERROR on line: " + str(
                             j + 1))
                     return
                 else:
-
+                    if (list1[1] in labels_check):
+                        print(
+                            "ERROR: Variable name cannot be same as an instruction name, ERROR on line: " + str(j + 1))
+                        return
                     variables[list1[1]] = 0
                     if len(l) == 1:
                         return
@@ -260,7 +264,7 @@ def main():
             return
     for x in labels:
         if x in labels_check:
-            print("ERROR: Name of a label can't be same as an instruction name.")
+            print("ERROR: Name of a label can't be same as an instruction name, ERROR on line: "+ str(int(labels[x],2)))
             return
     for x in range(len(l[j:])):
         # print(i)
@@ -939,11 +943,17 @@ def main():
                         output.append(jump_if_equal_func(list1, labels))
 
         elif "hlt" in list1:
+
             if j + x != len(l) - 1:
                 print("ERROR: Halt should be in the end, ERROR on line: " + str(j + x + 1))
                 return
+            if list1.count("hlt")>1:
+                print("ERROR: Two halt instructions found, ERROR on line: "+ str(j+x+1))
+                return
             output.append(halt_func())
-
+        else:
+            print("ERROR: Invalid instruction, ERROR on line: "+str(j + x + 1))
+            return
     for s in output:
         print(s)
     # print(labels)
