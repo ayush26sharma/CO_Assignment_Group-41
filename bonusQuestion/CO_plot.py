@@ -25,9 +25,9 @@ def main():
     #                 "je", "hlt"]
     # reg_list = ["R0", "R1", "R2", "R3", "R4", "R5", "R6"]
     # reg_list_fl = ["R0", "R1", "R2", "R3", "R4", "R5", "R6", "FLAGS"]
-    #l = list(map(str, sys.stdin.readlines()))
-    f = open('Readme.txt', mode='r+')
-    l = f.readlines()
+    l = list(map(str, sys.stdin.readlines()))
+    #f = open('Readme.txt', mode='r+')
+    #l = f.readlines()
     # print(l)
     variables = {}
     dict_flags = {"V": "0", "L": "0", "G": "0", "E": "0"}
