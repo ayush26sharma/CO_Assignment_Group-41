@@ -228,7 +228,7 @@ def main():
                         print(
                             "ERROR: Variable name cannot be same as an instruction name, ERROR on line: " + str(j + 1))
                         return
-                    elif (list[1] in variables):
+                    elif (list1[1] in variables.keys()):
                         print(
                             "ERROR: Variable initialised more than once, ERROR on line: " + str(j + 1))
                         return  
