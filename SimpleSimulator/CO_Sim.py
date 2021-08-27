@@ -10,7 +10,7 @@ dictionary_opcode = {"add": "00000", "sub": "00001", "mov1": "00010", "mov2": "0
 def funcToPrint(dict_reg_l):
     str1 = ""
     for i in dict_reg_l:
-        str1 += "0" *(16 - len(str(bin(dict_reg_l[i]))[2:])) + str(bin(dict_reg_l[i]))[2:] +" "
+        str1 += "0" *(16 - len(str(bin(dict_reg_l[i]))[2:])) + str(bin(dict_reg_l[i]))[2:] + " "
     # str1.strip()
     return str1
 
@@ -28,11 +28,13 @@ def main():
     # f = open('Readme.txt', mode='r+')
     # l = f.readlines()
     # print(l)
+    temp1 = 0
     variables = {}
     dict_flags = {"V": "0", "L": "0", "G": "0", "E": "0"}
     dict_reg = {"000":"R0","001":"R1","010":"R2","011":"R3","100":"R4","101":"R5","110":"R6","111":"FLAGS"}
     regValues = {"R0":0,"R1":0,"R2":0,"R3":0,"R4":0,"R5":0,"R6":0}
     i = 0
+
     while i < len(l):
         l[i] = l[i].strip()
 
@@ -40,9 +42,11 @@ def main():
 
         if l[i][:5]=="00000":
             sum1 = regValues[dict_reg[l[i][10:13]]] + regValues[dict_reg[l[i][13:]]]
+
             if (sum1) > (2 ** 16 - 1):
+                temp = bin(sum1)[2:]
                 dict_flags["V"] = "1"
-                sum1 = sum1 - (2 ** 16)
+                sum1 = int(temp[len(temp)-16:],2)
             elif (sum1) < 0:
                 dict_flags["V"] = "1"
                 sum1 = 0
@@ -59,9 +63,12 @@ def main():
 
         elif l[i][:5]=="00001":
             diff1 = regValues[dict_reg[l[i][10:13]]] - regValues[dict_reg[l[i][13:]]]
+
+
             if (diff1) > (2 ** 16 - 1):
+                temp = bin(diff1)[2:]
                 dict_flags["V"] = "1"
-                diff1 = diff1 - (2 ** 16)
+                diff1 = int(temp[len(temp) - 16:], 2)
             elif (diff1) < 0:
                 dict_flags["V"] = "1"
                 diff1 = 0
@@ -78,6 +85,7 @@ def main():
 
         elif l[i][:5] == "00010":
             regValues[dict_reg[l[i][5:8]]] = int(l[i][8:],2)
+
             dict_flags["V"] = "0"
             dict_flags["L"] = "0"
             dict_flags["G"] = "0"
@@ -136,9 +144,12 @@ def main():
             i+=1
         elif l[i][:5] == "00110":
             sum1 = regValues[dict_reg[l[i][10:13]]] * regValues[dict_reg[l[i][13:]]]
+
+
             if (sum1) > (2 ** 16 - 1):
+                temp = bin(sum1)[2:]
                 dict_flags["V"] = "1"
-                sum1 = sum1 - (2 ** 16)
+                sum1 = int(temp[len(temp) - 16:], 2)
             elif (sum1) < 0:
                 dict_flags["V"] = "1"
                 sum1 = 0
@@ -155,9 +166,11 @@ def main():
         elif l[i][:5] == "00111":
             quotient = regValues[dict_reg[l[i][10:13]]] // regValues[dict_reg[l[i][13:]]]
             rem = regValues[dict_reg[l[i][10:13]]] % regValues[dict_reg[l[i][13:]]]
+
             if (quotient) > (2 ** 16 - 1):
+                temp = bin(quotient)[2:]
                 dict_flags["V"] = "1"
-                quotient = quotient - (2 ** 16)
+                quotient = int(temp[len(temp) - 16:], 2)
             elif (quotient) < 0:
                 dict_flags["V"] = "1"
                 quotient = 0
@@ -263,7 +276,7 @@ def main():
             print(conv2, funcToPrint(regValues)+ "0" * 16)
         elif l[i][:5] == "10000":
             pc = str(bin(i))[2:]
-            if dict_flags["L"]==1:
+            if dict_flags["L"]=="1":
                 i = int(l[i][8:],2)
             else:
                 i+=1
@@ -276,10 +289,12 @@ def main():
             print(conv2, funcToPrint(regValues)+ "0" * 16)
         elif l[i][:5] == "10001":
             pc = str(bin(i))[2:]
-            if dict_flags["G"]==1:
+            if dict_flags["G"]=="1":
                 i = int(l[i][8:],2)
+
             else:
                 i+=1
+
             dict_flags["V"] = "0"
             dict_flags["L"] = "0"
             dict_flags["G"] = "0"
@@ -287,9 +302,10 @@ def main():
 
             conv2 = "0" * (8 - len(pc)) + pc
             print(conv2, funcToPrint(regValues)+ "0" * 16)
+
         elif l[i][:5] == "10010":
             pc = str(bin(i))[2:]
-            if dict_flags["E"]==1:
+            if dict_flags["E"]=="1":
                 i = int(l[i][8:],2)
             else:
                 i+=1
@@ -307,6 +323,7 @@ def main():
             print(conv2, funcToPrint(regValues)+ "0" * 16)
             i+=1
     totalNum = 256 - (len(l) + len(variables))
+
     for s in l:
         s = s.strip()
         s = s.strip("/n")
