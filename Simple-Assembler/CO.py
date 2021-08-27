@@ -210,7 +210,7 @@ def main():
 
         list1 = j1.split()
         if "var" in list1:
-            if len(list1) != 2 and len(list1) != 3:
+            if len(list1) != 2:
                 print("ERROR: Invalid variable instruction length on line: " + str(j + 1))
                 return
             else:
