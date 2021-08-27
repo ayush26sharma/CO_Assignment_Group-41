@@ -213,8 +213,6 @@ def main():
             if len(list1) != 2 and len(list1) != 3:
                 print("ERROR: Invalid variable instruction length on line: " + str(j + 1))
                 return
-            elif len(list1) == 3:
-                pass
             else:
                 if list1[0] != "var":
                     print("ERROR: Syntax for defining a variable is not correct, ERROR on line: " + str(j + 1))
@@ -230,6 +228,10 @@ def main():
                         print(
                             "ERROR: Variable name cannot be same as an instruction name, ERROR on line: " + str(j + 1))
                         return
+                    elif (list[1] in variables):
+                        print(
+                            "ERROR: Variable initialised more than once, ERROR on line: " + str(j + 1))
+                        return  
                     variables[list1[1]] = 0
                     if len(l) == 1:
                         return
