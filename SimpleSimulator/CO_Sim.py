@@ -241,7 +241,12 @@ def main():
             print(conv2, funcToPrint(regValues)+ "0" * 16)
             i += 1
         elif l[i][:5] == "01101":
-            regValues[dict_reg[l[i][10:13]]] = ~ regValues[dict_reg[l[i][13:]]]
+            for j in regValues[dict_reg[l[i][13:]]]:
+                if j=='1':
+                    j='0'
+                else:
+                    j='1'
+            regValues[dict_reg[l[i][10:13]]] = int(regValues[dict_reg[l[i][13:]]],2)
             dict_flags["V"] = "0"
             dict_flags["L"] = "0"
             dict_flags["G"] = "0"
